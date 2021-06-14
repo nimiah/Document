@@ -1,6 +1,8 @@
 # install gnostic
-go get -u github.com/googleapis/gnostic
-go get -u github.com/googleapis/gnostic-grpc
+```sh
+$ go get -u github.com/googleapis/gnostic
+$ go get -u github.com/googleapis/gnostic-grpc
+```
 
 # generate command
 ```sh
