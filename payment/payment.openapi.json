@@ -1,0 +1,1083 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "All payment service api",
+        "license": {
+            "name": "MIT"
+        }
+    },
+    "tags": [
+        {
+            "name": "admin",
+            "description": "All api endpoint used by safechat administrations."
+        },
+        {
+            "name": "notify",
+            "description": "A published endpoint to Authorize.NET, which has a difference authenticate."
+        },
+        {
+            "name": "trans",
+            "description": "Operations for transaction"
+        },
+        {
+            "name": "channel",
+            "description": "Operations for channel from social service"
+        }
+    ],
+    "servers": [
+        {
+            "url": "http://localhost:{port}/{basePath}/payment",
+            "variables": {
+                "port": {
+                    "enum": [
+                        "80",
+                        "443"
+                    ],
+                    "default": "80"
+                },
+                "basePath": {
+                    "default": "/api/v1"
+                }
+            }
+        },
+        {
+            "url": "http://localhost:{port}/{basePath}/social",
+            "variables": {
+                "port": {
+                    "enum": [
+                        "80",
+                        "443"
+                    ],
+                    "default": "80"
+                },
+                "basePath": {
+                    "default": "/api/v1"
+                }
+            }
+        }
+    ],
+    "paths": {
+        "/webhooks/authnet": {
+            "post": {
+                "tags": [
+                    "notify"
+                ],
+                "summary": "An endpoint to receive the notification message from Authorize.Net whenever an event triggered. This endpoint uses Authorize.Net authentication.",
+                "operationId": "webhookNotification",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WebhookTransactionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The token to build up a payment form",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentFormResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/trans": {
+            "post": {
+                "tags": [
+                    "trans"
+                ],
+                "summary": "Update a payment status after a payment transaction is completed.",
+                "operationId": "notifyFormTransaction",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FormTransactionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/trans/search": {
+            "post": {
+                "tags": [
+                    "trans"
+                ],
+                "summary": "Search transactions for a channel owner.",
+                "operationId": "searchTransactions",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageableFilter"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageableResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/trans/request-form": {
+            "post": {
+                "tags": [
+                    "trans"
+                ],
+                "summary": "A viewer request to perform a payment, use this api to prepaire a payment form for it",
+                "operationId": "getPaymentForm",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentFormRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The token to build up a payment form",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentFormResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/earning/{numberOf}/{periodType}": {
+            "get": {
+                "tags": [
+                    "trans"
+                ],
+                "summary": "Get estimated earning of a channel owner by a given number of period in day/week/month as such",
+                "operationId": "getEstimateEarning",
+                "parameters": [
+                    {
+                        "name": "channelId",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "The channel id"
+                    },
+                    {
+                        "name": "numberOf",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "The number of counter in the following defined period"
+                    },
+                    {
+                        "name": "periodType",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "description": "The type of period, Ex: day, week, month"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/balance": {
+            "get": {
+                "tags": [
+                    "trans"
+                ],
+                "summary": "Get current balance of a channel owner",
+                "operationId": "getCurrentBalance",
+                "parameters": [
+                    {
+                        "name": "channelId",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "The channel id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/revenue": {
+            "get": {
+                "tags": [
+                    "trans"
+                ],
+                "summary": "Get revenue from a channel",
+                "operationId": "getCurrentRevenue",
+                "parameters": [
+                    {
+                        "name": "channelId",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "The channel id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/monetization": {
+            "get": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Get all monnetizised channels for an user.",
+                "operationId": "getChannels",
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Create a monetizised channel./// It is might be existed in social api",
+                "operationId": "createChannel",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateChannelRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Update a channel.",
+                "operationId": "updateChannel",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateChannelRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/monetization": {
+            "delete": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Delete a monetizised channel.",
+                "operationId": "deleteChannel",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/account-info": {
+            "put": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Create or update the account info for a channel.",
+                "operationId": "submitAccountInfo",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AccountInfo"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Get the account info of a channel.",
+                "operationId": "getAccountInfo",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountInfo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/account-info/otp": {
+            "get": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Get the OTP to activate the phone number.",
+                "operationId": "getOTPForVerifyAccountPhoneNumber",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Verify the OTP in term of phonenumber validation or address valication.",
+                "operationId": "verifyOTP",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OTPValidationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/payment-method": {
+            "put": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Create or update the payment method for a channel.",
+                "operationId": "savePaymentMethod",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentMethod"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Get all payment method from a channel.",
+                "operationId": "getPaymentMethods",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "array",
+                                        "$ref": "#/components/schemas/PaymentMethod"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{channelId}/payment-method/{id}": {
+            "delete": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Delete a payment method from a channel.",
+                "operationId": "deletePaymentMethod",
+                "parameters": [
+                    {
+                        "name": "channelId",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the payment method to delete"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Get payment method info from a channel.",
+                "operationId": "getPaymentMethod",
+                "parameters": [
+                    {
+                        "name": "channelId",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the payment method"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "array",
+                                        "$ref": "#/components/schemas/PaymentMethod"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/membership": {
+            "put": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Create or update the membership for a channel.",
+                "operationId": "saveMembership",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Membership"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Get all membership from a channel.",
+                "operationId": "getMemberships",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "array",
+                                        "$ref": "#/components/schemas/Membership"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{channelId}/membership/{id}": {
+            "delete": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Delete a membership from a channel.",
+                "operationId": "deleteMembership",
+                "parameters": [
+                    {
+                        "name": "channelId",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the membership to delete"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Get membership info from a channel.",
+                "operationId": "getMembership",
+                "parameters": [
+                    {
+                        "name": "channelId",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the membership"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "type": "array",
+                                        "$ref": "#/components/schemas/Membership"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/channel/{id}/tax": {
+            "put": {
+                "tags": [
+                    "channel"
+                ],
+                "summary": "Upload a declared tax file.",
+                "operationId": "updateTaxFile",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "fileName": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/channel/{id}/tax/{status}": {
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update the status of tax request.",
+                "operationId": "updateTaxStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "Numeric ID of the channel"
+                    },
+                    {
+                        "name": "status",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "description": "The status of tax request which is set by admin user"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/trans/search": {
+            "post": {
+                "tags": [
+                    "trans"
+                ],
+                "summary": "Search all transactions for all channel owners.",
+                "operationId": "searchAllTransactions",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageableFilter"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageableResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "PaymentFormRequest": {
+                "type": "object",
+                "properties": {}
+            },
+            "PaymentFormResponse": {
+                "type": "object",
+                "properties": {}
+            },
+            "FormTransactionRequest": {
+                "type": "object",
+                "properties": {}
+            },
+            "WebhookTransactionRequest": {
+                "type": "object",
+                "properties": {}
+            },
+            "OTPValidationRequest": {
+                "type": "object",
+                "properties": {
+                    "code": {},
+                    "type": {}
+                }
+            },
+            "ResponseMessage": {
+                "type": "object",
+                "properties": {}
+            },
+            "Transaction": {
+                "type": "object",
+                "properties": {}
+            },
+            "AccountInfo": {
+                "type": "object",
+                "properties": {}
+            },
+            "PaymentMethod": {
+                "type": "object",
+                "properties": {}
+            },
+            "Membership": {
+                "type": "object",
+                "properties": {
+                }
+            },
+            "PageableFilter": {
+                "type": "object",
+                "properties": {
+                    "from": {
+                        "type": "string",
+                        "description": "Date in format yyyy/MM/DD"
+                    },
+                    "to": {
+                        "type": "string",
+                        "description": "Date in format yyyy/MM/DD"
+                    },
+                    "size": {
+                        "type": "number"
+                    },
+                    "pageIndex": {
+                        "type": "number"
+                    }
+                }
+            },
+            "PageableResult": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "size": {
+                        "type": "number"
+                    },
+                    "index": {
+                        "type": "number"
+                    },
+                    "total": {
+                        "type": "number"
+                    }
+                }
+            }
+        }
+    }
+}
