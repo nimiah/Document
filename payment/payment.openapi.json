@@ -273,7 +273,7 @@
                 "operationId": "getCurrentRevenue",
                 "parameters": [
                     {
-                        "name": "channelId",
+                        "name": "id",
                         "in": "path",
                         "schema": {
                             "type": "integer"
