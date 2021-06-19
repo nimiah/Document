@@ -241,7 +241,7 @@
                 "operationId": "getCurrentBalance",
                 "parameters": [
                     {
-                        "name": "channelId",
+                        "name": "id",
                         "in": "path",
                         "schema": {
                             "type": "integer"
