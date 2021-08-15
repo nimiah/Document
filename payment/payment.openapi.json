@@ -58,13 +58,24 @@
         }
     ],
     "paths": {
-        "/webhooks/authnet": {
+        "/webhooks/{orgId}/authnet": {
             "post": {
                 "tags": [
                     "notify"
                 ],
                 "summary": "An endpoint to receive the notification message from Authorize.Net whenever an event triggered. This endpoint uses Authorize.Net authentication.",
                 "operationId": "webhookNotification",
+                "parameters": [
+                    {
+                        "name": "orgId",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "description": "The organization unique id, which supported by payment system for the organization"
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -77,14 +88,10 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The token to build up a payment form",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PaymentFormResponse"
-                                }
-                            }
-                        }
+                        "description": "Message OK"
+                    },
+                    "400": {
+                        "description": "Error message"
                     }
                 }
             }
@@ -1036,8 +1043,7 @@
             },
             "Membership": {
                 "type": "object",
-                "properties": {
-                }
+                "properties": {}
             },
             "PageableFilter": {
                 "type": "object",
